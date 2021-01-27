@@ -11,7 +11,6 @@ exports.getBusData = (req, res) => {
 
 busBoard = function(postcode, res) {
     checkPostcodeValid(postcode, res);
-    getLatLong(postcode, res);
 };
 
 checkPostcodeValid = function(postcode, res) {
@@ -30,7 +29,9 @@ checkPostcodeValid = function(postcode, res) {
             
             if (!result) {
                 res.render('error.ejs');                   
-            } 
+            } else {
+                getLatLong(postcode, res);
+            }
         }
         validRequest.send();
     }
@@ -85,18 +86,18 @@ findBusesForStop1 = function(stops, res) {
         response = JSON.parse(request.responseText);
 
         // Extract the information on bus departures
-        // var stopName1 = response.stop_name;
+        var stopName1 = response.stop_name;
         departures = response.departures;
     
         // var stop1Buses = [stopName1].concat(findSoonest5Buses(departures)); 
         var stop1Buses = findSoonest5Buses(departures);
-        findBusesForStop2(stops[1], stop1Buses, res);
+        findBusesForStop2(stops[1], stop1Buses, stopName1, res);
     }
 
     request.send();
 }
 
-findBusesForStop2 = function(stop2, stop1Buses, res) {
+findBusesForStop2 = function(stops, stop1Buses, stopName1, res) {
     var request = new XMLHttpRequest();
     var url = `http://transportapi.com/v3/uk/bus/stop/${stop2}/live.json?group=route&app_id=97d91d05&app_key=b77e693ec08272f32658588da099e89f`;
 
@@ -108,12 +109,14 @@ findBusesForStop2 = function(stop2, stop1Buses, res) {
         response = JSON.parse(request.responseText);
 
         // Extract the information on bus departures
+        var stopNames = [stopName1, response.stop_name];
         departures = response.departures;
 
         var allBuses = stop1Buses.concat(findSoonest5Buses(departures));
 
         res.render('testView', {
             data: allBuses,
+            stops: stopNames,
         })
     }
 
