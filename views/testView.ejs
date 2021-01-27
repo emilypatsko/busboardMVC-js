@@ -4,12 +4,17 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<link rel="stylesheet" href="./views/styles.css">
+	<link rel="stylesheet" href="/styles.css">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 	<title>Bus departures</title>
 </head>
 
 <body id="home">
-	<h1>Departures from <%= postcode.toUpperCase() %></h1>
+	<h1>Bus departures from <%= postcode.toUpperCase() %></h1>
+
+	<h3>Your nearest stops are: </h3>
 
 	<table>
 		<tr>
@@ -23,14 +28,22 @@
 			<th>Expected</th>
 			<th>Direction</th>
 		</tr>
-		<% for (let i = 0; i < stops.numBuses[0]; i++) { %>
-			<tr>
-				<td><%= data[i].line %></td>
-				<td><%= data[i].aimed_departure_time %></td>
-				<td><%= data[i].expected_departure_time %></td>
-				<td><%= data[i].direction %></td>
-			</tr>
-		<% }; %>
+		<% if (stops.numBuses[0] > 0) { 
+			for (let i = 0; i < stops.numBuses[0]; i++) { %>
+				<tr>
+					<td><%= data[i].line %></td>
+					<td><%= data[i].aimed_departure_time %></td>
+					<td><%= data[i].expected_departure_time %></td>
+					<td><%= data[i].direction %></td>
+				</tr>
+			<% } 
+		} else { %>
+				<tr>
+					<td colspan="4">
+						There are no data available for this stop.
+					</td>
+				</tr>
+		<% } %>			
 	</table>
 
 	<table>
@@ -45,14 +58,22 @@
 			<th>Expected</th>
 			<th>Direction</th>
 		</tr>
-		<% for (let i = stops.numBuses[0]; i < stops.numBuses[0]+stops.numBuses[1]; i++) { %>
-			<tr>
-				<td><%= data[i].line %></td>
-				<td><%= data[i].aimed_departure_time %></td>
-				<td><%= data[i].expected_departure_time %></td>
-				<td><%= data[i].direction %></td>
-			</tr>
-		<% }; %>
+		<% if (stops.numBuses[1] > 0) { 
+			for (let i = stops.numBuses[0]; i < stops.numBuses[0]+stops.numBuses[1]; i++) { %>
+				<tr>
+					<td><%= data[i].line %></td>
+					<td><%= data[i].aimed_departure_time %></td>
+					<td><%= data[i].expected_departure_time %></td>
+					<td><%= data[i].direction %></td>
+				</tr>
+			<% } 
+		} else { %>
+				<tr>
+					<td colspan="4">
+						There are no data available for this stop.
+					</td>
+				</tr>
+		<% } %>			
 	</table>
 
 </body>
