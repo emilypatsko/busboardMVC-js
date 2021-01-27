@@ -1,26 +1,6 @@
 const Bus = require('../models/Test');
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
-exports.getTestData = (req, res) => {
-	let data = [
-		new Test('Test name', 12),
-		new Test('Second name', 13)
-	];
-	res.render('testView', {
-		data : data,
-	});
-};
-
-exports.getSecondTestData = (req, res) => {
-	let data = [
-		new Test('other name', 15),
-		new Test('other second name', 16)
-	];
-	res.render('testView', {
-		data : data,
-	});
-};
-
 exports.getBusData = (req, res) => {
     busBoard(req.params.postcode, res);
 };
@@ -30,15 +10,17 @@ exports.getBusData = (req, res) => {
 -------------------------------------------------------------------------------------------------------------------------------------*/
 
 busBoard = function(postcode, res) {
-    checkPostcodeValid(postcode);
+    checkPostcodeValid(postcode, res);
     getLatLong(postcode, res);
 };
 
-checkPostcodeValid = function(postcode) {
+checkPostcodeValid = function(postcode, res) {
     // const postcodeExpr = /^([A-PR-UWYZ]([0-9]{1,2}|([A-HK-Y][0-9]|[A-HK-Y][0-9]([0-9]|[ABEHMNPRV-Y]))|[0-9][A-HJKS-UW])\ [0-9][ABD-HJLNP-UW-Z]{2}|(GIR\ 0AA)|(SAN\ TA1)|(BFPO\ (C\/O\ )?[0-9]{1,4})|((ASCN|BBND|[BFS]IQQ|PCRN|STHL|TDCU|TKCA)\ 1ZZ))$/i;
-    // if (!postcodeExpr.test(postcode)) {
-    //     throw 'Invalid postcode format';
-    // } else {
+    const postcodeExpr = /^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0A{2})$/i
+    if (!postcodeExpr.test(postcode)) {
+        res.sendFile('../error.html', {root: __dirname});
+        res.render('error.ejs');
+    } else {
         var validRequest = new XMLHttpRequest();
         var validUrl = `http://api.postcodes.io/postcodes/${postcode}/validate`;
         validRequest.open('GET', validUrl, true);
@@ -47,11 +29,11 @@ checkPostcodeValid = function(postcode) {
             var result = response.result;
             
             if (!result) {
-                throw 'Invalid postcode';
+                res.render('error.ejs');                   
             } 
         }
         validRequest.send();
-    // }
+    }
 };
 
 getLatLong = function(postcode, res) {
@@ -103,9 +85,11 @@ findBusesForStop1 = function(stops, res) {
         response = JSON.parse(request.responseText);
 
         // Extract the information on bus departures
+        // var stopName1 = response.stop_name;
         departures = response.departures;
     
-        stop1Buses = findSoonest5Buses(departures); 
+        // var stop1Buses = [stopName1].concat(findSoonest5Buses(departures)); 
+        var stop1Buses = findSoonest5Buses(departures);
         findBusesForStop2(stops[1], stop1Buses, res);
     }
 
@@ -168,79 +152,3 @@ findSoonest5Buses = function(departures) {
         return departureBoard.slice(0,departureBoard.length)
     }
 }
-
-
-
-// printNearestStops = function(stops) {
-//     let arr = [];
-//     stops.forEach(stop => {
-//         arr.concat(printDepartureBoard(stop));
-//     });
-//     return arr;
-// };
-
-// printDepartureBoard = function(atcocode) {
-//     var request = new XMLHttpRequest();
-//     var url = `http://transportapi.com/v3/uk/bus/stop/${atcocode}/live.json?group=route&app_id=97d91d05&app_key=b77e693ec08272f32658588da099e89f`;
-
-//     request.open('GET', url, true)
-//     var response;
-
-//     request.onload = function () {
-//         // store all the requested data
-//         response = JSON.parse(request.responseText);
-
-//         // Extract the information on bus departures
-//         departures = response.departures;
-    
-//         var departureBoard = [];
-
-//         for (let busRoute in departures) {
-//             departureBoard = departureBoard.concat(Object.values(departures[busRoute]));
-//         }       
-
-//         departureBoard.sort(function(a, b) {
-//             if (a.expected_departure_time < b.expected_departure_time) {
-//                 return -1;
-//             } else if (a.expected_departure_time > b.expected_departure_time) {
-//                 return 1;
-//             } else { 
-//                 if (a.aimed_departure_time < b.aimed_departure_time) {
-//                     return -1;
-//                 } else if (a.aimed_departure_time > b.aimed_departure_time) {
-//                     return 1;
-//                 } else {
-//                     return 0;  
-//                 }          
-//             }
-//         })
-
-//         return departureBoard;
-
-//         // console.log(response.name);
-//         // if (departureBoard.length == 0) {
-//         //     console.log('No upcoming departures');
-//         // } else {
-//         //     let i = 0;
-//         //     while (i < departureBoard.length && i < 5) {
-//         //         printDepartureInfo(departureBoard[i]);
-//         //         i++;
-//         //     }
-//         // }
-//         // let i = 0;
-//         // while (i < departureBoard.length && i < 5) {
-//         //     printDepartureBoard([i]);
-//         //     i++;
-//         // }
-
-//      }
-
-//     request.send();
-// }
-
-// // function printDepartureInfo(departure) {
-// //     let arr = [`Route: ${departure.line}`, `Scheduled: ${departure.aimed_departure_time}`, `Expected: ${departure.expected_departure_time}  `, `Direction: ${departure.direction}`];
-// //     console.log(arr.join('\t'));
-// // }
-
-

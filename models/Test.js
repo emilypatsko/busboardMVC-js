@@ -1,18 +1,3 @@
-class Test{
-	constructor(name, id) {
-		this.name = name;
-		this.id = id;
-	}
-
-	showTestData() {
-		return this.name + ", id: " + this.id; 
-	};
-
-	editName(newName) {
-		this.name = newName
-	}
-};
-
 class Bus {
 	constructor(line, aimed_departure_time, expected_departure_time, direction) {
 		this.line = line;
