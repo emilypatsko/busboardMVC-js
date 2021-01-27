@@ -10,4 +10,5 @@ app.get('/postcode/:postcode', testController.getBusData);
 
 app.listen(port, () => {
 	console.log(`app is listening to port ${port}`);
+	console.log(`directory is ${__dirname}`);
 });

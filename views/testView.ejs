@@ -4,17 +4,59 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
+	<link rel="stylesheet" href="./views/styles.css">
 	<title>Bus departures</title>
 </head>
 
 <body id="home">
-	<h1>MVC Example</h1>
-	<ul>
-		<%
-			data.forEach((bus) => { %>
-			<li><b><%= bus.printBusData() %></b></li>
-		<% });
-		%>
-	</ul>
+	<h1>Departures from <%= postcode.toUpperCase() %></h1>
+
+	<table>
+		<tr>
+			<th colspan="4">
+				<%= stops.stopNames[0] %>
+			</th>
+		</tr>
+		<tr>
+			<th>Line</th>
+			<th>Scheduled</th>
+			<th>Expected</th>
+			<th>Direction</th>
+		</tr>
+		<% for (let i = 0; i < stops.numBuses[0]; i++) { %>
+			<tr>
+				<td><%= data[i].line %></td>
+				<td><%= data[i].aimed_departure_time %></td>
+				<td><%= data[i].expected_departure_time %></td>
+				<td><%= data[i].direction %></td>
+			</tr>
+		<% }; %>
+	</table>
+
+	<table>
+		<tr>
+			<th colspan="4">
+				<%= stops.stopNames[1] %>
+			</th>
+		</tr>
+		<tr>
+			<th>Line</th>
+			<th>Scheduled</th>
+			<th>Expected</th>
+			<th>Direction</th>
+		</tr>
+		<% for (let i = stops.numBuses[0]; i < stops.numBuses[0]+stops.numBuses[1]; i++) { %>
+			<tr>
+				<td><%= data[i].line %></td>
+				<td><%= data[i].aimed_departure_time %></td>
+				<td><%= data[i].expected_departure_time %></td>
+				<td><%= data[i].direction %></td>
+			</tr>
+		<% }; %>
+	</table>
+
 </body>
 </html>
+
+
+

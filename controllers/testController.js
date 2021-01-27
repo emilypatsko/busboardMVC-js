@@ -49,13 +49,13 @@ getLatLong = function(postcode, res) {
         // const location = extractLatLong(postcodeResponse);
 
         // use transport api to look up 2 nearest bus stops
-        findNearestStops(location, 2, res);
+        findNearestStops(location, 2, postcode, res);
     }
 
     postcodeRequest.send();
 };
 
-findNearestStops = function(location, num, res) {
+findNearestStops = function(location, num, postcode, res) {
     var busStopUrl = `http://transportapi.com/v3/uk/places.json?lat=${location.postcodeLat}&lon=${location.postcodeLong}&type=bus_stop&app_id=97d91d05&app_key=b77e693ec08272f32658588da099e89f`;
     var stopRequest = new XMLHttpRequest();    
     stopRequest.open('GET', busStopUrl, true);
@@ -69,12 +69,12 @@ findNearestStops = function(location, num, res) {
         }
 
         // print departure board for each bus stop
-        findBusesForStop1(stops, res);
+        findBusesForStop1(stops, postcode, res);
     }
     stopRequest.send();
 };
 
-findBusesForStop1 = function(stops, res) {
+findBusesForStop1 = function(stops, postcode, res) {
     var request = new XMLHttpRequest();
     var url = `http://transportapi.com/v3/uk/bus/stop/${stops[0]}/live.json?group=route&app_id=97d91d05&app_key=b77e693ec08272f32658588da099e89f`;
 
@@ -91,13 +91,13 @@ findBusesForStop1 = function(stops, res) {
     
         // var stop1Buses = [stopName1].concat(findSoonest5Buses(departures)); 
         var stop1Buses = findSoonest5Buses(departures);
-        findBusesForStop2(stops[1], stop1Buses, stopName1, res);
+        findBusesForStop2(stops[1], stop1Buses, stopName1, postcode, res);
     }
 
     request.send();
 }
 
-findBusesForStop2 = function(stops, stop1Buses, stopName1, res) {
+findBusesForStop2 = function(stop2, stop1Buses, stopName1, postcode, res) {
     var request = new XMLHttpRequest();
     var url = `http://transportapi.com/v3/uk/bus/stop/${stop2}/live.json?group=route&app_id=97d91d05&app_key=b77e693ec08272f32658588da099e89f`;
 
@@ -109,17 +109,22 @@ findBusesForStop2 = function(stops, stop1Buses, stopName1, res) {
         response = JSON.parse(request.responseText);
 
         // Extract the information on bus departures
-        var stopNames = [stopName1, response.stop_name];
         departures = response.departures;
+        var stop2Buses = findSoonest5Buses(departures);
+        var allBuses = stop1Buses.concat(stop2Buses);
 
-        var allBuses = stop1Buses.concat(findSoonest5Buses(departures));
+        var stops = {
+            stopNames: [stopName1, response.stop_name],
+            numBuses: [stop1Buses.length, stop2Buses.length],
+        }
 
         res.render('testView', {
             data: allBuses,
-            stops: stopNames,
+            stops: stops,
+            postcode,
         })
     }
-
+    
     request.send();
 }
 
